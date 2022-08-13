@@ -13,4 +13,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Compose Launcher"
-include(":app")
+include(":sample")
+include(":launcher")
