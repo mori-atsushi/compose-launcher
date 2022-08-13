@@ -13,5 +13,4 @@
             android:supportsRtl="true"
             android:theme="@style/Theme.ComposeLauncher"
             tools:targetApi="31" />
-
 </manifest>
