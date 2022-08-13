@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Compose Launcher"
-include ':app'
+include(":app")
