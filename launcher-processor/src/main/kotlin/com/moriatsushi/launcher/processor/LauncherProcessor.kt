@@ -7,6 +7,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import org.intellij.lang.annotations.Language
 
 internal class LauncherProcessor(
     private val codeGenerator: CodeGenerator,
@@ -39,6 +40,7 @@ internal class LauncherProcessor(
         }
     }
 
+    @Language("kotlin")
     private fun createCode(functionName: String): String {
         return """
             // generated!
