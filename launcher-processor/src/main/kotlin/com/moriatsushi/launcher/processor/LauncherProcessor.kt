@@ -25,10 +25,22 @@ internal class LauncherProcessor(
         val symbol = resolver.getSymbolsWithAnnotation(
             annotationName = "com.moriatsushi.launcher.Entry",
         ).firstOrNull() as? KSFunctionDeclaration ?: return
+
         val functionName = symbol.qualifiedName?.asString() ?: return
         val file = symbol.containingFile ?: return
+        val code = createCode(functionName)
 
-        val code = """
+        codeGenerator.createNewFile(
+            dependencies = Dependencies(false, file),
+            packageName = "com.moriatsushi.launcher",
+            fileName = "ComposeActivity",
+        ).use { outputStream ->
+            outputStream.write(code.toByteArray())
+        }
+    }
+
+    private fun createCode(functionName: String): String {
+        return """
             // generated!
 
             package com.moriatsushi.launcher
@@ -42,18 +54,10 @@ internal class LauncherProcessor(
                     super.onCreate(savedInstanceState)
 
                     setContent {
-                        ${functionName}()
+                        $functionName()
                     }
                 }
             }
         """.trimIndent()
-
-        codeGenerator.createNewFile(
-            dependencies = Dependencies(false, file),
-            packageName = "com.moriatsushi.launcher",
-            fileName = "ComposeActivity",
-        ).use { outputStream ->
-             outputStream.write(code.toByteArray())
-        }
     }
 }
