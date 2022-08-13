@@ -15,3 +15,5 @@ dependencyResolutionManagement {
 rootProject.name = "Compose Launcher"
 include(":sample")
 include(":launcher")
+include(":launcher-annotations")
+include(":launcher-processor")

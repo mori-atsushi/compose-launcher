@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("com.google.devtools.ksp")
     kotlin("android")
 }
 
@@ -7,7 +8,7 @@ android {
     compileSdk = 32
 
     defaultConfig {
-        applicationId = "com.moriatsushi.launcher"
+        applicationId = "com.moriatsushi.launcher.sample"
         minSdk = 21
         targetSdk = 32
         versionCode = 1
@@ -21,7 +22,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -34,8 +35,17 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    sourceSets {
+        getByName("main") { java.srcDirs("src/main/kotlin") }
+        getByName("test") { java.srcDirs("src/test/kotlin") }
+        getByName("androidTest") { java.srcDirs("src/androidTest/kotlin") }
+    }
 }
 
 dependencies {
+    implementation(kotlin("stdlib"))
     implementation("androidx.appcompat:appcompat:1.5.0")
+    implementation(project(":launcher"))
+    ksp(project(":launcher-processor"))
 }
