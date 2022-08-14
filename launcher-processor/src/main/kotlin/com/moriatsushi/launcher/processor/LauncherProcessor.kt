@@ -51,9 +51,9 @@ internal class LauncherProcessor(
     private fun generateDefaultEntry(
         function: KSFunctionDeclaration,
     ) {
-        val functionName = function.qualifiedName?.asString() ?: return
+        val functionNames = FunctionNames.of(function)
         val file = function.containingFile ?: return
-        val activityCode = codeBuilder.buildDefaultActivity(functionName)
+        val activityCode = codeBuilder.buildDefaultActivity(functionNames)
 
         codeGenerator.createNewFile(
             dependencies = Dependencies(true, file),
@@ -64,7 +64,7 @@ internal class LauncherProcessor(
         }
 
         val launcherCode = codeBuilder.buildLauncher(
-            function = function,
+            function = functionNames,
             isDefault = true,
         )
 
@@ -80,13 +80,12 @@ internal class LauncherProcessor(
     private fun generateOtherEntries(
         functions: List<KSFunctionDeclaration>,
     ) {
-        val functionNames = functions.mapNotNull {
-            it.qualifiedName?.asString()
-        }
         val files = functions.mapNotNull {
             it.containingFile
         }.toTypedArray()
-        val activityCode = codeBuilder.buildOtherActivity(functionNames)
+        val activityCode = codeBuilder.buildOtherActivity(
+            functions.map { FunctionNames.of(it) },
+        )
 
         codeGenerator.createNewFile(
             dependencies = Dependencies(true, *files),
@@ -97,8 +96,9 @@ internal class LauncherProcessor(
         }
 
         functions.forEach {
+            val functionNames = FunctionNames.of(it)
             val launcherCode = codeBuilder.buildLauncher(
-                function = it,
+                function = functionNames,
                 isDefault = false,
             )
             val file = it.containingFile
