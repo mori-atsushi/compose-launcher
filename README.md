@@ -53,8 +53,8 @@ android {
 }
 
 dependencies {
-    implementation("com.moriatsushi.launcher:launcher:1.0.0-alpha01")
-    ksp("com.moriatsushi.launcher:launcher-processor:1.0.0-alpha01")
+    implementation("com.moriatsushi.launcher:launcher:1.0.0-alpha02")
+    ksp("com.moriatsushi.launcher:launcher-processor:1.0.0-alpha02")
 }
 ```
 
