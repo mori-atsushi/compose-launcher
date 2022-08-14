@@ -59,7 +59,7 @@ android {
 
     composeOptions {
         // use latest version
-        kotlinCompilerExtensionVersion = 1.1.0
+        kotlinCompilerExtensionVersion = "1.3.0"
     }
 
     kotlinOptions {
