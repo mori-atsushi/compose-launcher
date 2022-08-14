@@ -52,9 +52,6 @@ android {
         getByName("main") {
             kotlin.srcDirs("src/main/kotlin")
         }
-        getByName("debug") {
-            kotlin.srcDirs("build/generated/ksp/debug/kotlin")
-        }
         getByName("test") {
             kotlin.srcDirs("src/test/kotlin")
             kotlin.srcDirs("src/sharedTest/kotlin")
@@ -76,10 +73,12 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling:1.2.1")
     implementation("androidx.compose.foundation:foundation:1.2.1")
     implementation("androidx.compose.material:material:1.2.1")
+    testImplementation("androidx.test:core-ktx:1.4.0")
     testImplementation("androidx.compose.ui:ui-test-junit4:1.2.1")
     testImplementation("org.robolectric:robolectric:4.8.1")
     testImplementation("androidx.test.ext:junit:1.1.3")
     testImplementation("androidx.test:runner:1.4.0")
+    androidTestImplementation("androidx.test:core-ktx:1.4.0")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.2.1")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test:runner:1.4.0")
