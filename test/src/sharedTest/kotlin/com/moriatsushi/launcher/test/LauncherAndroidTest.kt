@@ -1,7 +1,7 @@
 package com.moriatsushi.launcher.test
 
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.activity.ComponentActivity
+import androidx.test.core.app.launchActivity
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.ComponentNameMatchers.hasClassName
@@ -11,15 +11,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.hamcrest.core.AllOf.allOf
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class LauncherTest {
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
+class LauncherAndroidTest {
     @Before
     fun setup() {
         Intents.init()
@@ -32,11 +28,10 @@ class LauncherTest {
 
     @Test
     fun `launch DefaultComposeActivity`() {
-        composeTestRule.setContent {
-            val launcher = rememberMainLauncher()
-            LaunchedEffect(Unit) {
-                launcher.launch()
-            }
+        val scenario = launchActivity<ComponentActivity>()
+        scenario.onActivity {
+            val launcher = getMainLauncher(it)
+            launcher.launch()
         }
         val expectedClass = "com.moriatsushi.launcher.DefaultComposeActivity"
         intended(hasComponent(hasClassName(expectedClass)))
@@ -44,11 +39,10 @@ class LauncherTest {
 
     @Test
     fun `launch ComposeActivity`() {
-        composeTestRule.setContent {
-            val launcher = rememberOther1Launcher()
-            LaunchedEffect(Unit) {
-                launcher.launch()
-            }
+        val scenario = launchActivity<ComponentActivity>()
+        scenario.onActivity {
+            val launcher = getOther1Launcher(it)
+            launcher.launch()
         }
         val expectedClass = "com.moriatsushi.launcher.ComposeActivity"
         val expectedDestination = "com.moriatsushi.launcher.test.Other1"

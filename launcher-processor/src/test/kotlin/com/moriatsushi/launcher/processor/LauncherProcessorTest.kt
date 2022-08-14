@@ -76,7 +76,8 @@ class LauncherProcessorTest {
 
         val launcherCode = launcherFile!!.readText()
         assertThat(launcherCode).contains("\npackage testPackage\n")
-        assertThat(launcherCode).contains("fun rememberMainLauncher(): MainLauncher")
+        assertThat(launcherCode).contains("@Composable\nfun rememberMainLauncher(): MainLauncher")
+        assertThat(launcherCode).contains("fun getMainLauncher(context: Context): MainLauncher")
         assertThat(launcherCode).contains("interface MainLauncher")
         assertThat(launcherCode).contains("DefaultComposeActivity::class.java")
     }
@@ -146,7 +147,8 @@ class LauncherProcessorTest {
 
         val launcherCode = launcherFile!!.readText()
         assertThat(launcherCode).contains("\npackage testPackage\n")
-        assertThat(launcherCode).contains("fun rememberOtherLauncher(): OtherLauncher")
+        assertThat(launcherCode).contains("@Composable\nfun rememberOtherLauncher(): OtherLauncher")
+        assertThat(launcherCode).contains("fun getOtherLauncher(context: Context): OtherLauncher")
         assertThat(launcherCode).contains("interface OtherLauncher")
         assertThat(launcherCode).contains("ComposeActivity::class.java")
         assertThat(launcherCode).contains("intent.putExtra(\"launcher_destination\", \"testPackage.Other\")")
