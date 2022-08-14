@@ -53,14 +53,27 @@ internal class LauncherProcessor(
     ) {
         val functionName = function.qualifiedName?.asString() ?: return
         val file = function.containingFile ?: return
-        val code = codeBuilder.buildDefaultEntry(functionName)
+        val activityCode = codeBuilder.buildDefaultActivity(functionName)
 
         codeGenerator.createNewFile(
             dependencies = Dependencies(true, file),
             packageName = EntryPackageName,
             fileName = DefaultEntryFileName,
         ).use { outputStream ->
-            outputStream.write(code.toByteArray())
+            outputStream.write(activityCode.toByteArray())
+        }
+
+        val launcherCode = codeBuilder.buildLauncher(
+            function = function,
+            isDefault = true,
+        )
+
+        codeGenerator.createNewFile(
+            dependencies = Dependencies(false, file),
+            packageName = function.packageName.asString(),
+            fileName = "${function.simpleName.asString()}Launcher",
+        ).use { outputStream ->
+            outputStream.write(launcherCode.toByteArray())
         }
     }
 
@@ -73,14 +86,31 @@ internal class LauncherProcessor(
         val files = functions.mapNotNull {
             it.containingFile
         }.toTypedArray()
-        val code = codeBuilder.buildOtherEntries(functionNames)
+        val activityCode = codeBuilder.buildOtherActivity(functionNames)
 
         codeGenerator.createNewFile(
             dependencies = Dependencies(true, *files),
             packageName = EntryPackageName,
             fileName = OtherEntryFileName,
         ).use { outputStream ->
-            outputStream.write(code.toByteArray())
+            outputStream.write(activityCode.toByteArray())
+        }
+
+        functions.forEach {
+            val launcherCode = codeBuilder.buildLauncher(
+                function = it,
+                isDefault = false,
+            )
+            val file = it.containingFile
+                ?: error("require containingFile")
+
+            codeGenerator.createNewFile(
+                dependencies = Dependencies(false, file),
+                packageName = it.packageName.asString(),
+                fileName = "${it.simpleName.asString()}Launcher",
+            ).use { outputStream ->
+                outputStream.write(launcherCode.toByteArray())
+            }
         }
     }
 }
