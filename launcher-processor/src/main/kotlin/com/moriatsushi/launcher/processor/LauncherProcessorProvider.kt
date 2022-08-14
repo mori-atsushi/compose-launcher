@@ -8,6 +8,8 @@ class LauncherProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
         return LauncherProcessor(
             codeGenerator = environment.codeGenerator,
+            codeBuilder = CodeBuilder(),
+            codeAnalyzer = CodeAnalyzer(),
             logger = environment.logger,
         )
     }
