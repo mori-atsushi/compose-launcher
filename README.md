@@ -37,8 +37,8 @@ plugins {
 }
 
 dependencies {
-    implementation("com.moriatsushi.launcher:launcher:1.0.0-dev02")
-    ksp("com.moriatsushi.launcher:launcher-processor:1.0.0-dev02")
+    implementation("com.moriatsushi.launcher:launcher:1.0.0-dev03")
+    ksp("com.moriatsushi.launcher:launcher-processor:1.0.0-dev03")
 }
 ```
 
