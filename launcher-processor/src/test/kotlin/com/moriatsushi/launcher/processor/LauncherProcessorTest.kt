@@ -39,10 +39,10 @@ class LauncherProcessorTest {
         assertThat(generatedFiles).hasSize(1)
 
         val generatedFile = generatedFiles.first()
-        assertThat(generatedFile.name).isEqualTo("ComposeActivity.kt")
+        assertThat(generatedFile.name).isEqualTo("DefaultComposeActivity.kt")
 
         val generatedString = generatedFile.readText()
-        assertThat(generatedString).contains("ComposeActivity")
+        assertThat(generatedString).contains("DefaultComposeActivity")
         assertThat(generatedString).contains("testPackage.Main()")
     }
 

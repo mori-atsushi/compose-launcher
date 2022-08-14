@@ -18,7 +18,7 @@ internal class LauncherProcessor(
         private val EntryAnnotationName = Entry::class.qualifiedName
             ?: error("require qualifiedName of Entry")
         private const val EntryPackageName = "com.moriatsushi.launcher"
-        private const val EntryFileName = "ComposeActivity"
+        private const val DefaultEntryFileName = "DefaultComposeActivity"
     }
 
     private var isGenerated: Boolean = false
@@ -41,12 +41,12 @@ internal class LauncherProcessor(
         val function = codeAnalyzer.getTargetFunction(symbols) ?: return
         val functionName = function.qualifiedName?.asString() ?: return
         val file = function.containingFile ?: return
-        val code = codeBuilder.build(functionName)
+        val code = codeBuilder.buildDefaultEntry(functionName)
 
         codeGenerator.createNewFile(
             dependencies = Dependencies(true, file),
             packageName = EntryPackageName,
-            fileName = EntryFileName,
+            fileName = DefaultEntryFileName,
         ).use { outputStream ->
             outputStream.write(code.toByteArray())
         }
