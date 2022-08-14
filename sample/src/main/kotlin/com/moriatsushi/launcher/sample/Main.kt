@@ -8,7 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.moriatsushi.launcher.Entry
 
-@Entry
+@Entry(default = true)
 @Composable
 fun Main() {
     Box(

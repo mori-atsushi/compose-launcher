@@ -84,7 +84,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import com.moriatsushi.launcher.Entry
 
-@Entry
+@Entry(default = true)
 @Composable
 fun Main() {
     MaterialTheme {

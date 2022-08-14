@@ -26,7 +26,7 @@ class LauncherProcessorTest {
 
                 import com.moriatsushi.launcher.Entry
 
-                @Entry
+                @Entry(default = true)
                 fun Main() {
                 }
             """,
@@ -74,11 +74,11 @@ class LauncherProcessorTest {
 
                 import com.moriatsushi.launcher.Entry
 
-                @Entry
+                @Entry(default = true)
                 fun Main1() {
                 }
 
-                @Entry
+                @Entry(default = true)
                 fun Main2() {
                 }
             """,
