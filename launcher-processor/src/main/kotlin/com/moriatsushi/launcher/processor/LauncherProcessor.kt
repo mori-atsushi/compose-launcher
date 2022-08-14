@@ -23,21 +23,40 @@ internal class LauncherProcessor(
     }
 
     private fun generate(resolver: Resolver) {
-        val symbol = resolver.getSymbolsWithAnnotation(
-            annotationName = "com.moriatsushi.launcher.Entry",
-        ).firstOrNull() as? KSFunctionDeclaration ?: return
-
+        val symbol = getTargetSymbol(resolver) ?: return
         val functionName = symbol.qualifiedName?.asString() ?: return
         val file = symbol.containingFile ?: return
         val code = createCode(functionName)
 
         codeGenerator.createNewFile(
-            dependencies = Dependencies(false, file),
+            dependencies = Dependencies(true, file),
             packageName = "com.moriatsushi.launcher",
             fileName = "ComposeActivity",
         ).use { outputStream ->
             outputStream.write(code.toByteArray())
         }
+    }
+
+    private fun getTargetSymbol(resolver: Resolver): KSFunctionDeclaration? {
+        val iterator = resolver
+            .getSymbolsWithAnnotation(
+                annotationName = "com.moriatsushi.launcher.Entry",
+            )
+            .filterIsInstance<KSFunctionDeclaration>()
+            .iterator()
+        if (!iterator.hasNext()) {
+            return null
+        }
+        val target = iterator.next()
+        if (iterator.hasNext()) {
+            logger.error(
+                """
+                Multiple entries is not supported
+                Issue: https://github.com/Mori-Atsushi/compose-launcher/issues/1
+                """.trimIndent(),
+            )
+        }
+        return target
     }
 
     @Language("kotlin")

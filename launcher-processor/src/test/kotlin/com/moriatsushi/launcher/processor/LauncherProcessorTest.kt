@@ -47,7 +47,7 @@ class LauncherProcessorTest {
     }
 
     @Test
-    fun `Do not generate if there is no target`() {
+    fun `do not generate if there is no target`() {
         val kotlinSource = SourceFile.kotlin(
             "Test.kt",
             """
@@ -63,6 +63,30 @@ class LauncherProcessorTest {
 
         val generatedFiles = findGeneratedFiles(complication)
         assertThat(generatedFiles).isEmpty()
+    }
+
+    @Test
+    fun `multiple entries are not allowed`() {
+        val kotlinSource = SourceFile.kotlin(
+            "Test.kt",
+            """
+                package testPackage
+
+                import com.moriatsushi.launcher.Entry
+
+                @Entry
+                fun Main1() {
+                }
+
+                @Entry
+                fun Main2() {
+                }
+            """,
+        )
+        val complication = createCompilation(kotlinSource)
+        val result = complication.compile()
+        assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
+        assertThat(result.messages).contains("Multiple entries is not supported")
     }
 
     private fun createCompilation(vararg sourceFiles: SourceFile): KotlinCompilation {
