@@ -73,6 +73,7 @@ internal class CodeBuilder {
 
         package ${function.packageName}
 
+        import android.content.Context
         import android.content.Intent
         import androidx.compose.runtime.Composable
         import androidx.compose.runtime.remember
@@ -82,18 +83,18 @@ internal class CodeBuilder {
         @Composable
         fun remember$launcherName(): $launcherName {
             val context = LocalContext.current
-            return remember {
-                object : $launcherName {
-                    override fun launch() {
-                        val intent = Intent(context, $activityName::class.java)
-                        ${if (!isDefault) "intent.putExtra(\"launcher_destination\", \"${function.qualifiedName}\")" else ""}
-                        context.startActivity(intent)
-                    }
-                }
+            return remember { get$launcherName(context) }
+        }
+
+        fun get$launcherName(context: Context): $launcherName {
+            return $launcherName {
+                val intent = Intent(context, $activityName::class.java)
+                ${if (!isDefault) "intent.putExtra(\"launcher_destination\", \"${function.qualifiedName}\")" else ""}
+                context.startActivity(intent)
             }
         }
 
-        interface $launcherName {
+        fun interface $launcherName {
             fun launch()
         }
         """.trimIndent()
