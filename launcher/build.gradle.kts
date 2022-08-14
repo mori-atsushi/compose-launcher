@@ -43,7 +43,8 @@ android {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("androidx.appcompat:appcompat:1.5.0")
     api(project(":launcher-annotations"))
+
+    implementation("androidx.activity:activity-ktx:1.5.1")
     api("androidx.activity:activity-compose:1.5.1")
 }
