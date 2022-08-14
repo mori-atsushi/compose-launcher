@@ -49,7 +49,6 @@ class LauncherProcessorTest {
         assertThat(activityCode).contains("testPackage.Main()")
     }
 
-
     @Test
     fun `generate DefaultLauncher`() {
         val kotlinSource = SourceFile.kotlin(
@@ -118,7 +117,6 @@ class LauncherProcessorTest {
         assertThat(activityCode).contains("testPackage.Other1()")
         assertThat(activityCode).contains("testPackage.Other2()")
     }
-
 
     @Test
     fun `generate OtherLauncher`() {

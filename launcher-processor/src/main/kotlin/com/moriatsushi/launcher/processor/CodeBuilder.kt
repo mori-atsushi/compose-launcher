@@ -80,12 +80,12 @@ internal class CodeBuilder {
         import com.moriatsushi.launcher.$activityName
 
         @Composable
-        fun remember${launcherName}(): $launcherName {
+        fun remember$launcherName(): $launcherName {
             val context = LocalContext.current
             return remember {
                 object : $launcherName {
                     override fun launch() {
-                        val intent = Intent(context, ${activityName}::class.java)
+                        val intent = Intent(context, $activityName::class.java)
                         ${if (!isDefault) "intent.putExtra(\"launcher_destination\", \"${function.qualifiedName}\")" else ""}
                         context.startActivity(intent)
                     }
