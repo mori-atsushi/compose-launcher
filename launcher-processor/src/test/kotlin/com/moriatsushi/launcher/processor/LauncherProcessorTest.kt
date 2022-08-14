@@ -18,7 +18,7 @@ class LauncherProcessorTest {
     val temporaryFolder = TemporaryFolder()
 
     @Test
-    fun `successfully generated`() {
+    fun `generate DefaultComposeActivity`() {
         val kotlinSource = SourceFile.kotlin(
             "Test.kt",
             """
@@ -47,6 +47,40 @@ class LauncherProcessorTest {
     }
 
     @Test
+    fun `generate ComposeActivity`() {
+        val kotlinSource = SourceFile.kotlin(
+            "Test.kt",
+            """
+                package testPackage
+
+                import com.moriatsushi.launcher.Entry
+
+                @Entry(default = false)
+                fun Other1() {
+                }
+
+                @Entry(default = false)
+                fun Other2() {
+                }
+            """,
+        )
+        val complication = createCompilation(kotlinSource)
+        val result = complication.compile()
+        assertThat(result.exitCode).isEqualTo(ExitCode.OK)
+
+        val generatedFiles = findGeneratedFiles(complication)
+        assertThat(generatedFiles).hasSize(1)
+
+        val generatedFile = generatedFiles.first()
+        assertThat(generatedFile.name).isEqualTo("ComposeActivity.kt")
+
+        val generatedString = generatedFile.readText()
+        assertThat(generatedString).contains("ComposeActivity")
+        assertThat(generatedString).contains("testPackage.Other1()")
+        assertThat(generatedString).contains("testPackage.Other2()")
+    }
+
+    @Test
     fun `do not generate if there is no target`() {
         val kotlinSource = SourceFile.kotlin(
             "Test.kt",
@@ -66,7 +100,7 @@ class LauncherProcessorTest {
     }
 
     @Test
-    fun `multiple entries are not allowed`() {
+    fun `multiple default entries are not allowed`() {
         val kotlinSource = SourceFile.kotlin(
             "Test.kt",
             """
@@ -86,7 +120,7 @@ class LauncherProcessorTest {
         val complication = createCompilation(kotlinSource)
         val result = complication.compile()
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
-        assertThat(result.messages).contains("Multiple entries is not supported")
+        assertThat(result.messages).contains("Multiple default entries are not allowed")
     }
 
     private fun createCompilation(vararg sourceFiles: SourceFile): KotlinCompilation {

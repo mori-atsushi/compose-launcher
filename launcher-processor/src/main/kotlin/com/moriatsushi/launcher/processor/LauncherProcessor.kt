@@ -6,7 +6,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
-import com.moriatsushi.launcher.Entry
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 internal class LauncherProcessor(
     private val codeGenerator: CodeGenerator,
@@ -15,10 +15,9 @@ internal class LauncherProcessor(
     private val logger: KSPLogger,
 ) : SymbolProcessor {
     companion object {
-        private val EntryAnnotationName = Entry::class.qualifiedName
-            ?: error("require qualifiedName of Entry")
         private const val EntryPackageName = "com.moriatsushi.launcher"
         private const val DefaultEntryFileName = "DefaultComposeActivity"
+        private const val OtherEntryFileName = "ComposeActivity"
     }
 
     private var isGenerated: Boolean = false
@@ -38,7 +37,20 @@ internal class LauncherProcessor(
         val symbols = resolver.getSymbolsWithAnnotation(
             annotationName = EntryAnnotationName,
         )
-        val function = codeAnalyzer.getTargetFunction(symbols) ?: return
+        val result = codeAnalyzer.analyze(symbols)
+
+        if (result.default != null) {
+            generateDefaultEntry(result.default)
+        }
+
+        if (result.others.isNotEmpty()) {
+            generateOtherEntries(result.others)
+        }
+    }
+
+    private fun generateDefaultEntry(
+        function: KSFunctionDeclaration,
+    ) {
         val functionName = function.qualifiedName?.asString() ?: return
         val file = function.containingFile ?: return
         val code = codeBuilder.buildDefaultEntry(functionName)
@@ -47,6 +59,26 @@ internal class LauncherProcessor(
             dependencies = Dependencies(true, file),
             packageName = EntryPackageName,
             fileName = DefaultEntryFileName,
+        ).use { outputStream ->
+            outputStream.write(code.toByteArray())
+        }
+    }
+
+    private fun generateOtherEntries(
+        functions: List<KSFunctionDeclaration>,
+    ) {
+        val functionNames = functions.mapNotNull {
+            it.qualifiedName?.asString()
+        }
+        val files = functions.mapNotNull {
+            it.containingFile
+        }.toTypedArray()
+        val code = codeBuilder.buildOtherEntries(functionNames)
+
+        codeGenerator.createNewFile(
+            dependencies = Dependencies(true, *files),
+            packageName = EntryPackageName,
+            fileName = OtherEntryFileName,
         ).use { outputStream ->
             outputStream.write(code.toByteArray())
         }
