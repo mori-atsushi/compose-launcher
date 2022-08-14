@@ -18,7 +18,7 @@ class LauncherProcessorTest {
     val temporaryFolder = TemporaryFolder()
 
     @Test
-    fun `successfully generated`() {
+    fun `generate DefaultComposeActivity`() {
         val kotlinSource = SourceFile.kotlin(
             "Test.kt",
             """
@@ -26,7 +26,7 @@ class LauncherProcessorTest {
 
                 import com.moriatsushi.launcher.Entry
 
-                @Entry
+                @Entry(default = true)
                 fun Main() {
                 }
             """,
@@ -36,14 +36,120 @@ class LauncherProcessorTest {
         assertThat(result.exitCode).isEqualTo(ExitCode.OK)
 
         val generatedFiles = findGeneratedFiles(complication)
-        assertThat(generatedFiles).hasSize(1)
+        assertThat(generatedFiles).hasSize(2)
 
-        val generatedFile = generatedFiles.first()
-        assertThat(generatedFile.name).isEqualTo("ComposeActivity.kt")
+        val activityFile = generatedFiles.find {
+            it.name == "DefaultComposeActivity.kt"
+        }
+        assertThat(activityFile).isNotNull()
 
-        val generatedString = generatedFile.readText()
-        assertThat(generatedString).contains("ComposeActivity")
-        assertThat(generatedString).contains("testPackage.Main()")
+        val activityCode = activityFile!!.readText()
+        assertThat(activityCode).contains("\npackage com.moriatsushi.launcher\n")
+        assertThat(activityCode).contains("class DefaultComposeActivity")
+        assertThat(activityCode).contains("testPackage.Main()")
+    }
+
+    @Test
+    fun `generate DefaultLauncher`() {
+        val kotlinSource = SourceFile.kotlin(
+            "Test.kt",
+            """
+                package testPackage
+
+                import com.moriatsushi.launcher.Entry
+
+                @Entry(default = true)
+                fun Main() {
+                }
+            """,
+        )
+        val complication = createCompilation(kotlinSource)
+        val result = complication.compile()
+        assertThat(result.exitCode).isEqualTo(ExitCode.OK)
+
+        val generatedFiles = findGeneratedFiles(complication)
+
+        val launcherFile = generatedFiles.find {
+            it.name == "MainLauncher.kt"
+        }
+        assertThat(launcherFile).isNotNull()
+
+        val launcherCode = launcherFile!!.readText()
+        assertThat(launcherCode).contains("\npackage testPackage\n")
+        assertThat(launcherCode).contains("fun rememberMainLauncher(): MainLauncher")
+        assertThat(launcherCode).contains("interface MainLauncher")
+        assertThat(launcherCode).contains("DefaultComposeActivity::class.java")
+    }
+
+    @Test
+    fun `generate ComposeActivity`() {
+        val kotlinSource = SourceFile.kotlin(
+            "Test.kt",
+            """
+                package testPackage
+
+                import com.moriatsushi.launcher.Entry
+
+                @Entry(default = false)
+                fun Other1() {
+                }
+
+                @Entry(default = false)
+                fun Other2() {
+                }
+            """,
+        )
+        val complication = createCompilation(kotlinSource)
+        val result = complication.compile()
+        assertThat(result.exitCode).isEqualTo(ExitCode.OK)
+
+        val generatedFiles = findGeneratedFiles(complication)
+        assertThat(generatedFiles).hasSize(3)
+
+        val activityFile = generatedFiles.find {
+            it.name == "ComposeActivity.kt"
+        }
+        assertThat(activityFile).isNotNull()
+
+        val activityCode = activityFile!!.readText()
+        assertThat(activityCode).contains("\npackage com.moriatsushi.launcher\n")
+        assertThat(activityCode).contains("class ComposeActivity")
+        assertThat(activityCode).contains("testPackage.Other1()")
+        assertThat(activityCode).contains("testPackage.Other2()")
+    }
+
+    @Test
+    fun `generate OtherLauncher`() {
+        val kotlinSource = SourceFile.kotlin(
+            "Test.kt",
+            """
+                package testPackage
+
+                import com.moriatsushi.launcher.Entry
+
+                @Entry(default = false)
+                fun Other() {
+                }
+            """,
+        )
+        val complication = createCompilation(kotlinSource)
+        val result = complication.compile()
+        assertThat(result.exitCode).isEqualTo(ExitCode.OK)
+
+        val generatedFiles = findGeneratedFiles(complication)
+        assertThat(generatedFiles).hasSize(2)
+
+        val launcherFile = generatedFiles.find {
+            it.name == "OtherLauncher.kt"
+        }
+        assertThat(launcherFile).isNotNull()
+
+        val launcherCode = launcherFile!!.readText()
+        assertThat(launcherCode).contains("\npackage testPackage\n")
+        assertThat(launcherCode).contains("fun rememberOtherLauncher(): OtherLauncher")
+        assertThat(launcherCode).contains("interface OtherLauncher")
+        assertThat(launcherCode).contains("ComposeActivity::class.java")
+        assertThat(launcherCode).contains("intent.putExtra(\"launcher_destination\", \"testPackage.Other\")")
     }
 
     @Test
@@ -66,7 +172,7 @@ class LauncherProcessorTest {
     }
 
     @Test
-    fun `multiple entries are not allowed`() {
+    fun `multiple default entries are not allowed`() {
         val kotlinSource = SourceFile.kotlin(
             "Test.kt",
             """
@@ -74,11 +180,11 @@ class LauncherProcessorTest {
 
                 import com.moriatsushi.launcher.Entry
 
-                @Entry
+                @Entry(default = true)
                 fun Main1() {
                 }
 
-                @Entry
+                @Entry(default = true)
                 fun Main2() {
                 }
             """,
@@ -86,7 +192,7 @@ class LauncherProcessorTest {
         val complication = createCompilation(kotlinSource)
         val result = complication.compile()
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
-        assertThat(result.messages).contains("Multiple entries is not supported")
+        assertThat(result.messages).contains("Multiple default entries are not allowed")
     }
 
     private fun createCompilation(vararg sourceFiles: SourceFile): KotlinCompilation {
