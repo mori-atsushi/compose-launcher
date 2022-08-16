@@ -9,6 +9,7 @@ class LauncherProcessorProvider : SymbolProcessorProvider {
         return LauncherProcessor(
             codeGenerator = environment.codeGenerator,
             codeBuilder = CodeBuilder(),
+            manifestBuilder = ManifestBuilder(environment),
             codeAnalyzer = CodeAnalyzer(),
             logger = environment.logger,
         )

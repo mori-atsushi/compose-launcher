@@ -21,3 +21,16 @@ fun Other() {
         }
     }
 }
+
+@Entry
+@Composable
+fun OtherAgain() {
+    MaterialTheme {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(text = "Other again")
+        }
+    }
+}
