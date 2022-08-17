@@ -77,6 +77,11 @@ tasks.register("setupManifestRelease") {
     }
 }
 
+afterEvaluate {
+    tasks.named("generateDebugBuildConfig").dependsOn("setupManifestDebug")
+    tasks.named("generateReleaseBuildConfig").dependsOn("setupManifestRelease")
+}
+
 dependencies {
     implementation("com.moriatsushi.launcher:launcher:1.0.0-alpha02")
     ksp("com.moriatsushi.launcher:launcher-processor:1.0.0-alpha02")
