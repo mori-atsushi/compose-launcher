@@ -11,11 +11,11 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 internal class LauncherProcessor(
     private val codeGenerator: CodeGenerator,
     private val codeBuilder: CodeBuilder,
+    private val manifestBuilder: ManifestBuilder,
     private val codeAnalyzer: CodeAnalyzer,
     private val logger: KSPLogger,
 ) : SymbolProcessor {
     companion object {
-        private const val EntryPackageName = "com.moriatsushi.launcher"
         private const val DefaultEntryFileName = "DefaultComposeActivity"
         private const val OtherEntryFileName = "ComposeActivity"
     }
@@ -41,6 +41,23 @@ internal class LauncherProcessor(
 
         if (result.default != null) {
             generateDefaultEntry(result.default)
+
+            val packageName = result.default.packageName.asString()
+            if (packageName.isNotEmpty()) {
+                val manifestEntry = manifestBuilder.buildManifest(packageName)
+                manifestBuilder.createManifest(manifestEntry)
+            }
+        } else {
+            // build for another module
+            val packageNameByOther = result.others
+                .map { it.packageName.asString() }
+                .firstOrNull()
+                .orEmpty()
+
+            if (packageNameByOther.isNotEmpty()) {
+                val manifestEntry = manifestBuilder.buildManifestModule(packageNameByOther)
+                manifestBuilder.createManifest(manifestEntry)
+            }
         }
 
         if (result.others.isNotEmpty()) {
@@ -49,7 +66,7 @@ internal class LauncherProcessor(
     }
 
     private fun generateDefaultEntry(
-        function: KSFunctionDeclaration,
+        function: KSFunctionDeclaration
     ) {
         val functionNames = FunctionNames.of(function)
         val file = function.containingFile ?: return
@@ -57,7 +74,7 @@ internal class LauncherProcessor(
 
         codeGenerator.createNewFile(
             dependencies = Dependencies(true, file),
-            packageName = EntryPackageName,
+            packageName = functionNames.packageName,
             fileName = DefaultEntryFileName,
         ).use { outputStream ->
             outputStream.write(activityCode.toByteArray())
@@ -78,7 +95,7 @@ internal class LauncherProcessor(
     }
 
     private fun generateOtherEntries(
-        functions: List<KSFunctionDeclaration>,
+        functions: List<KSFunctionDeclaration>
     ) {
         val files = functions.mapNotNull {
             it.containingFile
@@ -89,7 +106,7 @@ internal class LauncherProcessor(
 
         codeGenerator.createNewFile(
             dependencies = Dependencies(true, *files),
-            packageName = EntryPackageName,
+            packageName = files.first().packageName.asString(),
             fileName = OtherEntryFileName,
         ).use { outputStream ->
             outputStream.write(activityCode.toByteArray())

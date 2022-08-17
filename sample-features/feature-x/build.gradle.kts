@@ -1,26 +1,20 @@
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 
 plugins {
-    id("com.android.application")
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
-    kotlin("android")
 }
 
 android {
     compileSdk = 32
 
     defaultConfig {
-        applicationId = "com.moriatsushi.launcher.sample"
         minSdk = 21
         targetSdk = 32
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    buildFeatures {
-        compose = true
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -28,16 +22,17 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
+                "proguard-rules.pro"
             )
         }
     }
-
-    compileOptions {
-        sourceCompatibility(JavaVersion.VERSION_1_8)
-        targetCompatibility(JavaVersion.VERSION_1_8)
+    buildFeatures {
+        compose = true
     }
-
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.3.0"
     }
@@ -95,6 +90,7 @@ afterEvaluate {
 }
 
 dependencies {
+
     implementation(kotlin("stdlib"))
     implementation("androidx.appcompat:appcompat:1.5.0")
     implementation(project(":launcher"))
@@ -104,6 +100,4 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling:1.2.1")
     implementation("androidx.compose.foundation:foundation:1.2.1")
     implementation("androidx.compose.material:material:1.2.1")
-
-    implementation(project(":sample-features:feature-x"))
 }

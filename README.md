@@ -44,12 +44,42 @@ android {
     // Make IDE aware of generated code
     sourceSets {
         getByName("debug") {
-            kotlin.srcDirs("build/generated/ksp/debug/kotlin")
+            val generated = "build/generated/ksp/debug"
+            kotlin.srcDirs(generated, "$generated/kotlin")
+            manifest.srcFile("$generated/AndroidManifest.xml")
         }
         getByName("release") {
-            kotlin.srcDirs("build/generated/ksp/release/kotlin")
+            val generated = "build/generated/ksp/release"
+            kotlin.srcDirs(generated, "$generated/kotlin")
+            manifest.srcFile("$generated/AndroidManifest.xml")
         }
     }
+}
+
+
+tasks.register("setupManifestDebug") {
+    val generated = "build/generated/ksp/debug"
+
+    val dirRoot = project.projectDir.absolutePath
+    val manifestDir = "${dirRoot}/$generated"
+    ksp {
+        arg("manifest_path", manifestDir)
+    }
+}
+
+tasks.register("setupManifestRelease") {
+    val generated = "build/generated/ksp/release"
+
+    val dirRoot = project.projectDir.absolutePath
+    val manifestDir = "${dirRoot}/$generated"
+    ksp {
+        arg("manifest_path", manifestDir)
+    }
+}
+
+afterEvaluate {
+    tasks.named("generateDebugBuildConfig").dependsOn("setupManifestDebug")
+    tasks.named("generateReleaseBuildConfig").dependsOn("setupManifestRelease")
 }
 
 dependencies {
